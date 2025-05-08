@@ -22,51 +22,75 @@ def getData():
 @main_bp.route('/audio/save.php', methods=['POST'])
 def audio_save():
     print('tentando Salvar')
-    """
-    Salva o áudio enviado e registra a frase associada.
-    """
-    # Verificando se o arquivo de áudio foi enviado
+
     if 'audio' not in request.files:
         return jsonify({
-            "status": "erro",  # Indica que houve um erro
-            "message": "Arquivo de áudio não enviado."  # Mensagem informando o erro
-        }), 400  # Código HTTP 400 indica Bad Request (requisição inválida)
+            "status": "erro",
+            "message": "Arquivo de áudio não enviado."
+        }), 400
 
-    # Recuperando o arquivo de áudio
     audio_file = request.files['audio']
     if audio_file.filename == '':
         return jsonify({
             "status": "erro",
-            "message": "Nenhum arquivo selecionado."  # Se o arquivo não foi escolhido
+            "message": "Nenhum arquivo selecionado."
         }), 400
 
-    # Definindo onde o arquivo será salvo (diretório de upload)
     upload_folder = 'uploads/audio'
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
 
-
-    # Gerando o caminho completo para salvar o arquivo
     file_path = os.path.join(upload_folder, audio_file.filename)
-    
-    # Salvando o arquivo no diretório de uploads
     audio_file.save(file_path)
-    print(f'Audio salvo em ${file_path}')
-    # Recuperando a frase (dados) que foi enviada com o áudio
-    frase_dados = request.form.get('frase')  # A frase foi enviada como JSON, então vamos decodificá-la
+    print(f'Áudio salvo em {file_path}')
+
+    frase_dados = request.form.get('frase')
+    correcao = request.form.get('correcao')
+    index = request.form.get('index')
+
     if not frase_dados:
         return jsonify({
             "status": "erro",
             "message": "Dados da frase não encontrados."
         }), 400
 
+    try:
+        index = int(index)
+    except (ValueError, TypeError):
+        return jsonify({
+            "status": "erro",
+            "message": "Índice inválido."
+        }), 400
+
+    # Atualiza o dict.json apenas se a correção for válida
+
+    if correcao:
+        print('corrigindo Banco')
+        caminho_arquivo = os.path.join(current_app.root_path, 'dict.json')
+        try:
+            with open(caminho_arquivo, 'r', encoding='utf-8') as dic_file:
+                dados = json.load(dic_file)
+            if 0 <= index < len(dados):
+                print(correcao)
+                dados[index]['guarani'] = correcao
+                with open(caminho_arquivo, 'w', encoding='utf-8') as dic_file:
+                    json.dump(dados, dic_file, indent=2, ensure_ascii=False)
+            else:
+                return jsonify({
+                    "status": "erro",
+                    "message": "Índice fora do alcance do dicionário."
+                }), 400
+        except Exception as e:
+            return jsonify({
+                "status": "erro",
+                "message": f"Erro ao atualizar dict.json: {str(e)}"
+            }), 500
+
     frase_dados = json.loads(frase_dados)
 
-    # Você pode salvar esses dados ou processá-los conforme necessário
-    # Aqui, apenas estamos retornando uma resposta com o nome do arquivo salvo
     return jsonify({
-        "status": "sucesso",  # Indica que a operação foi bem-sucedida
+        "status": "sucesso",
         "message": "Áudio e frase salvos com sucesso.",
-        "audio_url": file_path,  # Retornando a URL ou caminho onde o áudio foi salvo
-        "frase": frase_dados  # Retornando os dados da frase que foram enviados
-    }), 200  # Código HTTP 200 indica que a criação foi bem-sucedida
+        "audio_url": file_path,
+        "frase": frase_dados
+    }), 200
