@@ -134,8 +134,12 @@ String correcao = _correctionController.text.trim(); // Remove espaços desneces
 if (correcao.isEmpty) {
   nomeArquivo = '$fraseTexto$timestamp.webm';
 } else {
-  String correcaoSemEspacos = correcao.replaceAll(RegExp(r'\s+'), '_');
-  nomeArquivo = '$correcaoSemEspacos$timestamp.webm';
+  nomeArquivo = '$fraseTexto$timestamp.webm';
+  // fraseAtual['guarani']=correcao;
+  // String correcaoSemEspacos = correcao.replaceAll(RegExp(r'\s+'), '_');
+  // nomeArquivo = '$correcaoSemEspacos$timestamp.webm';
+  
+  
 }
 
 print(nomeArquivo);
@@ -151,6 +155,7 @@ print(nomeArquivo);
 
   // Adicionando a correção no request, se necessário
   request.fields['correcao'] = _correctionController.text;
+  request.fields['index'] = (cont-1).toString();
 
   try {
     var response = await request.send();
