@@ -20,6 +20,7 @@ dependencies:
   record: ^3.0.0
   just_audio: ^0.9.37
   http: ^1.4.0
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
