@@ -1,31 +1,25 @@
 import 'package:flutter/material.dart';
-// import 'model/frases.dart';
 import 'dart:async';
 import 'package:record/record.dart';
 import 'package:just_audio/just_audio.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+
+
+/*#########################Model##################################*/
+import 'model/gittool.dart';
+
+
+
+
+/*################################################################*/
 void main() => runApp(App());
 
 
-  Future<List<Map<String, String>>> getGithub(String link) async {
-  final url = Uri.parse(link);
-  try {
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(response.body);
-      print('>>>>>>>>>>>JsonCapturado com sucesso');
-      return jsonList.map<Map<String, String>>((item) => Map<String, String>.from(item)).toList();
-    } else {
-      print('Erro na requisição: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Erro ao fazer requisição do json... Erro: $e');
-  }
-  return [];
-}
+
 
 class App extends StatelessWidget {
   @override
