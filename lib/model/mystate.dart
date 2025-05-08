@@ -6,17 +6,28 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:apppresenca/main.dart';
 import 'package:apppresenca/model/gittool.dart';
+String host = 'http://10.200.72.83:5000';
 
-class RecorderScreenState extends State<RecorderScreen> with SingleTickerProviderStateMixin {
-Map<String, String> fraseAtual  = {};      
-List<Map<String,String>> frases=[];
-bool hasPermission = false;
+
+
+class App extends StatefulWidget {
+  @override
+  RecorderScreenState createState() {
+    return RecorderScreenState(); 
+  }
+}
+
+class RecorderScreenState extends State<App> with SingleTickerProviderStateMixin {
+  Map<String, String> fraseAtual  = {};      
+  List<Map<String,String>> frases=[];
+  bool hasPermission = false;
 int cont = 0;
 int fl = 0;
 Future<void> loadFrases() async {
-    frases = await getGithub('https://raw.githubusercontent.com/AngeloDev-New/GuaraniVini/master/assets/dict.json');
+    // String host = 'https://raw.githubusercontent.com/AngeloDev-New/GuaraniVini/master/assets';
+
+    frases = await getGithub('${host}/dict.json');
     
     fl = frases.length;
     print('Itens recuperados ${fl}...');
@@ -60,7 +71,7 @@ Future<void> loadFrases() async {
   // Map<String, String> fraseAtual = nextFrase();
 
   Future<void> _startRecording() async {
-    // bool hasPermission = await _recorder.hasPermission();
+    
 
     if (hasPermission) {
       Directory tempDir = await getTemporaryDirectory();
@@ -113,12 +124,23 @@ void _sendRecording() async {
   String fraseTexto = fraseAtual['portugues']?.replaceAll(RegExp(r'\s+'), '_') ?? "frase_default";
 
   // Gerando o timestamp aleatório de 5 dígitos
+
   String timestamp = (DateTime.now().millisecondsSinceEpoch % 100000).toString().padLeft(5, '0');
 
   // Nome do arquivo com a frase e timestamp
-  String nomeArquivo = '$fraseTexto$timestamp.webm';
-  print(nomeArquivo);
-  var request = http.MultipartRequest('POST', Uri.parse('https://brsystems.app.br/audio/save.php'));
+  String nomeArquivo;
+String correcao = _correctionController.text.trim(); // Remove espaços desnecessários nas bordas
+
+if (correcao.isEmpty) {
+  nomeArquivo = '$fraseTexto$timestamp.webm';
+} else {
+  String correcaoSemEspacos = correcao.replaceAll(RegExp(r'\s+'), '_');
+  nomeArquivo = '$correcaoSemEspacos$timestamp.webm';
+}
+
+print(nomeArquivo);
+
+  var request = http.MultipartRequest('POST', Uri.parse('${host}/audio/save.php'));
 
   // Adicionando o arquivo de áudio ao request com o nome gerado
   var file = await http.MultipartFile.fromPath('audio', _filePath!, filename: nomeArquivo);
