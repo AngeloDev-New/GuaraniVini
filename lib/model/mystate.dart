@@ -7,9 +7,14 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:apppresenca/model/gittool.dart';
-String host = 'http://10.200.72.83:5000';
+// import 'package:flutter/foundation.dart';
 
 
+
+
+// String host = 'http://192.168.100.105:5000';
+
+String host = 'https://brsystems.app.br';
 
 class App extends StatefulWidget {
   @override
@@ -31,6 +36,7 @@ Future<void> loadFrases() async {
     
     fl = frases.length;
     print('Itens recuperados ${fl}...');
+    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>${host}>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<');
     hasPermission = await _recorder.hasPermission();
     
     setState(() {
@@ -156,6 +162,7 @@ print(nomeArquivo);
   // Adicionando a correção no request, se necessário
   request.fields['correcao'] = _correctionController.text;
   request.fields['index'] = (cont-1).toString();
+  request.fields['palavra'] = fraseAtual['portugues'].toString();
 
   try {
     var response = await request.send();

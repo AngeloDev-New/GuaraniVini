@@ -1,85 +1,137 @@
-Gravador de Áudio Indígena
+# Gravador de Áudio Indígena - App Flutter Web e Mobile
 
-Este é um aplicativo Flutter para gravação de áudio com suporte para correção do áudio gravado. O app permite que o usuário grave frases em português e as envie para um servidor, juntamente com uma correção opcional. O projeto também oferece a funcionalidade de reprodução de áudios gravados e acompanha o progresso da gravação e da reprodução.
-Funcionalidades
+Este projeto é um aplicativo Flutter compatível com web e dispositivos móveis que permite gravar, reproduzir e enviar áudios em língua Guarani para preservação cultural.
 
-    Gravação de Áudio: Grave áudios no formato .m4a com o botão de gravação.
+## Principais Características
 
-    Reprodução de Áudio: Reproduza áudios gravados com controle de pausa e play.
+- Interface adaptada para Web e Mobile
+- Gravação de áudio em ambas as plataformas
+- Reprodução de áudio gravado
+- Envio de gravações com metadados
+- Correção de frases em Guarani
+- Layout nativo com cores inspiradas na cultura indígena
 
-    Correção de Áudio: O usuário pode adicionar uma correção após a gravação do áudio.
+## Estrutura do Projeto
 
-    Envio de Áudio e Correção: Envie o áudio gravado e a correção para um servidor.
+O projeto foi adaptado para funcionar tanto em web quanto em dispositivos móveis, com as seguintes modificações:
 
-    Visualização de Frases: O app exibe frases em português, que podem ser usadas para gravação.
+- **Abstração de funcionalidades específicas da plataforma**: Uso de detecção de plataforma para oferecer implementações diferentes para web e mobile.
+- **Manipulação de áudio web-compatível**: Para a web, usamos as APIs MediaRecorder e AudioElement do navegador.
+- **Upload de arquivos multiplataforma**: Implementação específica para cada plataforma.
 
-Instalação
+## Configuração
 
-Siga os passos abaixo para rodar o projeto localmente:
-Pré-requisitos
+### Pré-requisitos
 
-    Flutter instalado.
+- Flutter SDK versão 3.9.0 ou superior
+- Dart SDK versão 2.18.0 ou superior
+- Servidor PHP para receber os arquivos de áudio (opcional, apenas para funcionalidade completa)
 
-    Android Studio ou Visual Studio Code para desenvolvimento Flutter.
+### Instalação
 
-Passos
+1. Clone o repositório
+```bash
+git clone https://github.com/seu-usuario/app-gravador-guarani.git
+cd app-gravador-guarani
+```
 
-    Clone o repositório:
-
-git clone https://github.com/AngeloDev-New/GravadorIndigena.git
-
-Navegue até o diretório do projeto:
-
-cd GravadorIndigena
-
-Instale as dependências:
-
+2. Instale as dependências
+```bash
 flutter pub get
+```
 
-Conecte um dispositivo Android ou inicie o emulador.
+3. Configure o servidor backend
 
-Execute o aplicativo:
+   - Coloque o arquivo `save.php` em um servidor web com suporte a PHP
+   - Crie a pasta `uploads/audio` com permissões de escrita
+   - Coloque o arquivo `dict.json` na raiz do servidor
 
-    flutter run
+4. Configure a URL do servidor
 
-Pacotes Utilizados
+   Edite a variável `host` no arquivo `web_compatible_app.dart` para apontar para o endereço do seu servidor:
 
-    record: Para gravação de áudio.
+```dart
+String host = 'http://seu-servidor.com'; // Substitua pelo endereço do seu servidor
+```
 
-    just_audio: Para reprodução de áudio.
+### Executando o Projeto
 
-    path_provider: Para localizar o diretório temporário para armazenar os arquivos de áudio.
+#### Para Web
 
-    http: Para fazer requisições HTTP para envio do áudio.
+```bash
+flutter run -d chrome
+```
 
-Funcionalidade de Envio
+#### Para Android
 
-O app envia os áudios gravados e suas correções para um servidor usando o método POST. Para isso, o arquivo é enviado como um MultipartFile e o conteúdo das correções é passado como dados no corpo da requisição.
+```bash
+flutter run -d android
+```
 
-URL de envio (exemplo):
+#### Para iOS
 
-https://brsystems.app.br/audio/save.php
+```bash
+flutter run -d ios
+```
 
-Estrutura de Dados Enviada
+### Compilando para Produção
 
-    Áudio: Arquivo de áudio gravado.
+#### Web
 
-    Frase: Frase em português que foi gravada.
+```bash
+flutter build web
+```
 
-    Correção: Correção opcional do áudio gravado.
+Os arquivos serão gerados na pasta `build/web` e podem ser hospedados em qualquer servidor web.
 
-Como Contribuir
+#### Android
 
-    Faça um fork do projeto.
+```bash
+flutter build apk
+```
 
-    Crie uma branch para sua funcionalidade (git checkout -b minha-funcionalidade).
+ou
 
-    Comite suas mudanças (git commit -am 'Adiciona nova funcionalidade').
+```bash
+flutter build appbundle
+```
 
-    Push para a branch (git push origin minha-funcionalidade).
+#### iOS
 
-    Abra um Pull Request.
+```bash
+flutter build ipa
+```
 
-Licença
+## Funcionamento
 
-Este projeto é licenciado sob a MIT License.
+1. O app carrega uma lista de frases em Guarani e Português do servidor
+2. O usuário pode gravar a pronúncia correta da frase em Guarani
+3. Após gravar, o usuário pode ouvir, cancelar ou enviar a gravação
+4. Opcionalmente, o usuário pode fornecer uma correção para a tradução
+5. Os áudios são enviados para o servidor com metadados associados
+
+## Personalização
+
+- Edite o arquivo `dict.json` para adicionar ou modificar frases
+- Personalize as cores no arquivo `web_compatible_app.dart`
+- Modifique o layout conforme necessário
+
+## Solução de Problemas
+
+### Problemas com Permissões de Áudio na Web
+
+Navegadores modernos exigem HTTPS para acessar o microfone. Durante o desenvolvimento, você pode usar:
+
+```bash
+flutter run -d chrome --web-hostname localhost --web-port 8080
+```
+
+### Problemas com CORS
+
+Se encontrar erros de CORS, verifique se o servidor está configurado corretamente com os headers de Access-Control-Allow-Origin.
+
+## Notas Importantes
+
+- **Compatibilidade Web**: A gravação de áudio na web funciona melhor em Chrome, Firefox e Edge.
+- **Formatos de Áudio**: No mobile, o app usa o formato AAC (.m4a), enquanto na web usa o formato WebM.
+- **Permissões**: Certifique-se de que seu app solicite as permissões necessárias para acessar o microfone.
