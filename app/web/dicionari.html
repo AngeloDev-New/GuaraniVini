@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dicionário Guarani</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="topo-fixo">
+    <h1>📖 Dicionário Guarani</h1>
+    <div class="formulario">
+      <input type="text" id="novo-guarani" placeholder="Nova palavra em Guarani">
+      <input type="text" id="novo-portugues" placeholder="Tradução em Português">
+      <button onclick="adicionarPalavra()">➕ Adicionar</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <table>
+      <thead>
+        <tr>
+          <th>Guarani</th>
+          <th>Português</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="dict-body">
+        <!-- Conteúdo dinâmico -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let dicionario = [];
+
+    async function carregarDicionario() {
+      const res = await fetch('/dict.json');
+      dicionario = await res.json();
+      renderizarTabela();
+    }
+
+    function renderizarTabela() {
+      const tbody = document.getElementById('dict-body');
+      tbody.innerHTML = '';
+      dicionario.forEach((item, index) => {
+        const linha = document.createElement('tr');
+        linha.innerHTML = `
+          <td><span id="g-${index}">${item.guarani}</span></td>
+          <td><span id="p-${index}">${item.portugues}</span></td>
+          <td>
+            <button class="edit-btn" onclick="editarPalavra(${index})">✏️ Editar</button>
+            <button class="delete-btn" onclick="deletarPalavra(${index})">🗑️ Remover</button>
+          </td>
+        `;
+        tbody.appendChild(linha);
+      });
+    }
+
+    async function adicionarPalavra() {
+      const guarani = document.getElementById('novo-guarani').value.trim();
+      const portugues = document.getElementById('novo-portugues').value.trim();
+      if (!guarani || !portugues) return alert("Preencha ambos os campos.");
+
+      await fetch('/atualizedict', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({acao: 'adicionar', guarani, portugues})
+      });
+      document.getElementById('novo-guarani').value = '';
+      document.getElementById('novo-portugues').value = '';
+      carregarDicionario();
+    }
+
+    async function deletarPalavra(index) {
+      await fetch('/atualizedict', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({acao: 'remover', indice: index})
+      });
+      carregarDicionario();
+    }
+
+    function editarPalavra(index) {
+      const atualGua = dicionario[index].guarani;
+      const atualPor = dicionario[index].portugues;
+
+      const guaNovo = prompt("Editar Guarani:", atualGua);
+      const porNovo = prompt("Editar Português:", atualPor);
+      if (guaNovo && porNovo) {
+        fetch('/atualizedict', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({acao: 'editar', indice: index, guarani: guaNovo, portugues: porNovo})
+        }).then(carregarDicionario);
+      }
+    }
+
+    carregarDicionario();
+  </script>
+</body>
+</html>

@@ -109,6 +109,8 @@ app/
 ├── static/
 ├── apk/
 │   └── app-profile.apk
+├── web/
+│   └── *webContents*
 ├── templates/
 ├── utils/
 │   └── helpers.py
